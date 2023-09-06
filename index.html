@@ -13,7 +13,21 @@
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
     <script>
-        console.log(document.doctype.name);
+        // HTMLバージョンを取得する関数
+        function getHTMLVersion() {
+            var version = "Unknown"; // デフォルト値を設定
+            
+            // HTML要素のversion属性をチェック
+            if (document.documentElement && document.documentElement.attributes["version"]) {
+                version = document.documentElement.attributes["version"].value;
+            }
+            
+            return version;
+        }
+
+        // HTMLバージョンをコンソールに出力
+        var htmlVersion = getHTMLVersion();
+        console.log("HTML Version: " + htmlVersion);
     </script>
     test
 </body>
