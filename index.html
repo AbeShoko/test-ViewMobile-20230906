@@ -1,33 +1,38 @@
 <head>
-    <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-W63PTVCB');</script>
-    <!-- End Google Tag Manager -->
 </head>
 <body>
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-W63PTVCB"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
-    <script>
-        // HTMLバージョンを取得する関数
-        function getHTMLVersion() {
-            var version = "Unknown"; // デフォルト値を設定
-            
-            // HTML要素のversion属性をチェック
-            if (document.documentElement && document.documentElement.attributes["version"]) {
-                version = document.documentElement.attributes["version"].value;
-            }
-            
-            return version;
-        }
+<style>
+  [data-cognigy-webchat-root] [data-cognigy-webchat-toggle].webchat-toggle-button {
+    display: none;
+  }
 
-        // HTMLバージョンをコンソールに出力
-        var htmlVersion = getHTMLVersion();
-        console.log("HTML Version: " + htmlVersion);
-    </script>
+  .custom-webchat-toggle-button {
+    border-radius: 30px;
+    border: none;;
+    background-color: red;
+    color: white;
+    padding: 15px;
+    cursor: pointer;
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+  }
+</style>
+ 
+<button
+  onclick="window.cognigyWebchat.toggle()"
+  class="custom-webchat-toggle-button"
+>
+  Open Chat
+</button>
+
+<script src="https://github.com/Cognigy/WebchatWidget/releases/latest/download/webchat.js"></script>
+<script>
+  initWebchat(
+    "https://endpoint-trial.cognigy.ai/9b527c86fffc0aa5de79eb10cfc8cecdae1db4102efad5268d88d0857974fd15"
+  ).then(webchat => {
+    window.cognigyWebchat = webchat;
+  });
+</script>
     test
 </body>
