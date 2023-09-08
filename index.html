@@ -1,38 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+
 <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Summit 2022 Demo</title>
+    <style>
+        @media screen and (min-width: 576px) {
+            [data-cognigy-webchat-root] [data-cognigy-webchat].webchat {
+                position: fixed;
+                left: 50%;
+                top: 45%;
+                width: 480px;
+                height: 640px;
+                transform: translate(-50%, -50%);
+            }
+
+            [data-cognigy-webchat-root] [data-cognigy-webchat-toggle].webchat-toggle-button {
+                display: none;
+            },
+            [data-cognigy-webchat-root] [data-cognigy-webchat].webchat .webchat-header-close-button {
+                display: none;
+            }
+        }
+
+        [data-cognigy-webchat-root] [data-cognigy-webchat].webchat .webchat-message-row.bot:empty {
+            display: none;
+        }
+
+        [data-cognigy-webchat-root] .webchat-quick-reply-template-replies-container .webchat-quick-reply-template-reply {
+            opacity: .6;
+            min-height: 32px;
+            padding: 0px 12px;
+            font-size: 14px;
+        }
+
+        [data-cognigy-webchat-root] .webchat-quick-reply-template-replies-container .webchat-quick-reply-template-reply:hover {
+            opacity: 1;
+        }
+
+    </style>
 </head>
+
 <body>
-<style>
-  [data-cognigy-webchat-root] [data-cognigy-webchat-toggle].webchat-toggle-button {
-    display: none;
-  }
+    <p>
+        <!-- Hit Alt to trigger Speech input<br>
+        Hit Ctl to trigger Keyboard input<br>
+        Hit S and start speaking -->
+    </p>
+    <div id="webchat-container">
+        <script src="https://github.com/Cognigy/WebchatWidget/releases/latest/download/webchat.js"></script>
+        <script src="./speech-input.webchat-plugin.js"></script>
+        <script src="./speech-output.webchat-plugin.js"></script>
+        <script>
+            initWebchat(
+                "https://cognigy-v4-ep.scorobo.ai/d77e4cd3ef535f6f2446e9175b3bf8c7ab94f210363625bcc3ad6d571a85e88d",
+                {
+                    settings: {
+                        enableSTT: true,
+                        enableTTS: true,
+                        STTLanguage: 'ja',
+                        startBehavior: 'button',
+                        getStartedButtonText: 'チャットをはじめる'
+                    }
+                }
+            ).then(webchat => {
+                window.webchat = webchat;
+                document.body.addEventListener('keydown', event => {
+                    if (event.key === 'Alt') {
+                        window.webchat.store.dispatch({ type: 'SET_INPUT_MODE', inputMode: 'speech' });
+                    } else if (event.key === 'Control') {
+                        window.webchat.store.dispatch({ type: 'SET_INPUT_MODE', inputMode: 'text' });
+                    }
+                });
+                window.webchat.open();
+            });
+        </script>
+    </div>
 
-  .custom-webchat-toggle-button {
-    border-radius: 30px;
-    border: none;;
-    background-color: red;
-    color: white;
-    padding: 15px;
-    cursor: pointer;
-    position: fixed;
-    bottom: 25px;
-    right: 25px;
-  }
-</style>
- 
-<button
-  onclick="window.cognigyWebchat.toggle()"
-  class="custom-webchat-toggle-button"
->
-  Open Chat
-</button>
-
-<script src="https://github.com/Cognigy/WebchatWidget/releases/latest/download/webchat.js"></script>
-<script>
-  initWebchat(
-    "https://endpoint-trial.cognigy.ai/9b527c86fffc0aa5de79eb10cfc8cecdae1db4102efad5268d88d0857974fd15"
-  ).then(webchat => {
-    window.cognigyWebchat = webchat;
-  });
-</script>
-    test
 </body>
+
+</html>
