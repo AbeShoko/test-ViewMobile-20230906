@@ -51,29 +51,11 @@
     </p>
     <div id="webchat-container">
         <script src="https://github.com/Cognigy/WebchatWidget/releases/latest/download/webchat.js"></script>
-        <script src="./speech-input.webchat-plugin.js"></script>
-        <script src="./speech-output.webchat-plugin.js"></script>
         <script>
             initWebchat(
-                "https://cognigy-v4-ep.scorobo.ai/d77e4cd3ef535f6f2446e9175b3bf8c7ab94f210363625bcc3ad6d571a85e88d",
-                {
-                    settings: {
-                        enableSTT: true,
-                        enableTTS: true,
-                        STTLanguage: 'ja',
-                        startBehavior: 'button',
-                        getStartedButtonText: 'チャットをはじめる'
-                    }
-                }
+                 "https://cognigy-v4-ep.scorobo.ai/58447273c53ad680e554c0bcf32281cd663adb7634f07e3e06037192fcbb27a5"
             ).then(webchat => {
                 window.webchat = webchat;
-                document.body.addEventListener('keydown', event => {
-                    if (event.key === 'Alt') {
-                        window.webchat.store.dispatch({ type: 'SET_INPUT_MODE', inputMode: 'speech' });
-                    } else if (event.key === 'Control') {
-                        window.webchat.store.dispatch({ type: 'SET_INPUT_MODE', inputMode: 'text' });
-                    }
-                });
                 window.webchat.open();
             });
         </script>
