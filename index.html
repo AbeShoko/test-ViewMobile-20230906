@@ -5,62 +5,438 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot Summit 2022 Demo</title>
+    <title>チャットボット デモページ</title>
     <style>
+        /* デモページ用 */
+        body {
+            font-family: sans-serif;
+        }
+
+        /* Webchatの表示サイズ */
         @media screen and (min-width: 576px) {
             [data-cognigy-webchat-root] [data-cognigy-webchat].webchat {
-                position: fixed;
-                left: 50%;
-                top: 45%;
-                width: 480px;
-                height: 640px;
-                transform: translate(-50%, -50%);
-            }
-
-            [data-cognigy-webchat-root] [data-cognigy-webchat-toggle].webchat-toggle-button {
-                display: none;
-            },
-            [data-cognigy-webchat-root] [data-cognigy-webchat].webchat .webchat-header-close-button {
-                display: none;
+                width: 500px;
+                height: min(calc(100vh - 32px), 800px);
+                bottom: 16px;
+                right: 16px;
             }
         }
 
-        [data-cognigy-webchat-root] [data-cognigy-webchat].webchat .webchat-message-row.bot:empty {
+        [data-cognigy-webchat-root] [data-cognigy-webchat] {
+            z-index: 1000 !important;
+        }
+
+        /* [data-cognigy-webchat-root] [data-cognigy-webchat].webchat {
+            border-radius: 0;
+        }
+ */
+        /* テキスト入力欄の非表示 */
+        [data-cognigy-webchat-root] [data-cognigy-webchat].webchat .webchat-input-menu-form {
             display: none;
         }
 
+        /* ボタンメニュー（「一つ前に戻る」「トップに戻る」）の設定 */
+        [data-cognigy-webchat-root] [data-cognigy-webchat].webchat .persistent-menu {
+            display: flex;
+            justify-content: center;
+        }
+
+        [data-cognigy-webchat-root] [data-cognigy-webchat].webchat .persistent-menu button {
+            background-color: transparent;
+            border-radius: 1rem;
+            border-style: solid;
+            border-color: rgba(0, 0, 0, 0.12);
+            border-width: 1px;
+            color: rgba(0, 0, 0, 0.87);
+            cursor: pointer;
+            padding: .5rem 1.5rem;
+            margin: .5rem;
+        }
+
+        [data-cognigy-webchat-root] [data-cognigy-webchat].webchat .persistent-menu button:hover {
+            background-color: rgba(0, 0, 0, 0.08);
+        }
+
+        /* 右下のWebchat開閉ボタンの設定 */
+        [data-cognigy-webchat-root] [data-cognigy-webchat-toggle].webchat-toggle-button {
+            width: auto;
+            height: auto;
+            border-radius: .5rem;
+            background-color: rgba(255, 255, 255);
+            background-image: unset;
+            color: rgb(193, 11, 55);
+            fill: rgb(193, 11, 55);
+            border: 2px solid rgb(193, 11, 55);
+            font-weight: bold;
+        }
+
+        [data-cognigy-webchat-root] [data-cognigy-webchat-toggle].webchat-toggle-button:hover {
+            color: rgba(255, 255, 255, 0.9) !important;
+            background-image: linear-gradient(185deg, rgb(155, 18, 52), rgb(145, 8, 42));
+        }
+
+        [data-cognigy-webchat-root] [data-cognigy-webchat-toggle].webchat-toggle-button::after {
+            content: 'よくある質問・来店予約はこちら';
+            margin: 0 .25rem;
+        }
+
+        [data-cognigy-webchat-root] [data-cognigy-webchat-toggle].webchat-toggle-button[aria-label="Close chat"]::after {
+            content: 'チャットを閉じる';
+        }
+
+        /* チャットボット非表示ボタン設定 */
+        [data-cognigy-webchat-root].webchat-root .cognigy-webchat-hide-button {
+            background-color: #eeeeee;
+            width: 28px;
+            height: 28px;
+            margin: 0px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            position: fixed;
+            right: 16px;
+            bottom: 54px;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        [data-cognigy-webchat-root].webchat-root .cognigy-webchat-hide-button::after {
+            content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z' fill='%23666666'%3E%3C/path%3E%3Cpath d='M0 0h24v24H0z' fill='none'%3E%3C/path%3E%3C/svg%3E");
+            scale: .8;
+        }
+
+        /* ユーザー側アイコン非表示設定 */
+        [data-cognigy-webchat-root] .webchat-avatar.user {
+            display: none;
+        }
+
+        /* ボット側アイコン表示設定 */
+        [data-cognigy-webchat-root] .webchat-message-row.bot {
+            display: block;
+            position: relative;
+        }
+
+        [data-cognigy-webchat-root] .webchat-message-row.bot:before {
+            content: 'お仏壇のはせがわ公式チャット';
+            position: absolute;
+            left: 64px;
+            font-size: 17px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+        }
+
+        [data-cognigy-webchat-root] .webchat-message-row.bot+.webchat-message-row.bot .webchat-avatar.bot {
+            display: none;
+        }
+
+        [data-cognigy-webchat-root] .webchat-message-row.bot+.webchat-message-row.bot:before {
+            display: none;
+        }
+
+        [data-cognigy-webchat-root] .webchat-avatar.bot {
+            width: 32px;
+            height: 32px;
+            border-radius: 0;
+            border: none;
+        }
+
+        /* リセットボタン設定 */
+        /* [data-cognigy-webchat-root] .reset-button {
+            background-color: inherit;
+            color: inherit;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            font-size: 90%;
+            min-width: 66px;
+        }
+
+        [data-cognigy-webchat-root] .reset-button:hover,
+        [data-cognigy-webchat-root] .reset-button:focus {
+            opacity: .85;
+        } */
+
+        /* メッセージ表示色設定 */
+        /* [data-cognigy-webchat-root] [data-cognigy-webchat].webchat .regular-message.bot, */
+        [data-cognigy-webchat-root] [data-cognigy-webchat].webchat .regular-message,
+        [data-cognigy-webchat-root] [data-cognigy-webchat].webchat .webchat-quick-reply-template-header-message,
+        [data-cognigy-webchat-root] [data-cognigy-webchat].webchat .webchat-buttons-template-header {
+            color: black;
+            background: rgb(234, 234, 234);
+            box-shadow: none;
+        }
+
+        /* メッセージフォントサイズ設定 */
+        [data-cognigy-webchat-root] [data-cognigy-webchat].webchat .regular-message.user {
+            font-size: 15px;
+        }
+
+
+
+        /* メッセージ行間設定 */
+        [data-cognigy-webchat-root] [data-cognigy-webchat].webchat .webchat-message-row {
+            line-height: 1.5;
+        }
+
+
+        /* ボタンメニュー表示設定 */
+        [data-cognigy-webchat-root] [data-cognigy-webchat].webchat .webchat-buttons-template-root {
+            width: unset !important;
+            background: unset !important;
+        }
+
+        [data-cognigy-webchat-root] [data-cognigy-webchat].webchat .webchat-buttons-template-button {
+            text-align: left;
+            color: black;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            position: relative;
+        }
+
+        [data-cognigy-webchat-root] [data-cognigy-webchat].webchat .webchat-buttons-template-button::before {
+            min-width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgb(193, 11, 55);
+            content: '';
+        }
+
+        [data-cognigy-webchat-root] [data-cognigy-webchat].webchat .webchat-buttons-template-button::after {
+            content: '>';
+            position: absolute;
+            right: 20px;
+            opacity: .5;
+        }
+
+        /* クリック済リンク表示色設定 */
+        [data-cognigy-webchat-root] [data-cognigy-webchat].webchat a,
+        [data-cognigy-webchat-root] [data-cognigy-webchat].webchat a:visited {
+            color: revert;
+        }
+
+        /* クイックリプライ表示設定 */
         [data-cognigy-webchat-root] .webchat-quick-reply-template-replies-container .webchat-quick-reply-template-reply {
-            opacity: .6;
-            min-height: 32px;
-            padding: 0px 12px;
-            font-size: 14px;
+            border-radius: 10px;
         }
 
+        /* 回答内リンク表示色設定 */
+        [data-cognigy-webchat-root] [data-cognigy-webchat].webchat a.link-button,
+        [data-cognigy-webchat-root] [data-cognigy-webchat].webchat a.link-button:visited {
+            padding: 4px 16px;
+            text-decoration: unset;
+            color: rgb(193, 11, 55);
+            border: 1px solid rgb(193, 11, 55);
+            border-radius: 10px;
+            min-height: 40px;
+            min-width: 40px;
+            font-size: 15px;
+            transition: transform 0.1s ease-out 0s;
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+            box-sizing: border-box;
+            background-color: rgb(250, 250, 250);
+        }
+
+        [data-cognigy-webchat-root] [data-cognigy-webchat].webchat a.link-button:hover {
+            border-color: rgb(145, 8, 42);
+            color: rgb(145, 8, 42);
+            transform: translate(0px, -1px);
+        }
+
+        [data-cognigy-webchat-root] [data-cognigy-webchat].webchat a.link-button:focus {
+            box-shadow: rgb(241, 14, 71) 0px 0px 3px 1px
+        }
+
+        /* クイックリプライ表示色設定 */
+        /* [data-cognigy-webchat-root] .webchat-quick-reply-template-replies-container .webchat-quick-reply-template-reply,
         [data-cognigy-webchat-root] .webchat-quick-reply-template-replies-container .webchat-quick-reply-template-reply:hover {
-            opacity: 1;
-        }
-
+            background: linear-gradient(185deg, rgb(203, 21, 65), rgb(193, 11, 55));
+            color: rgba(255, 255, 255, 0.95);
+        } */
     </style>
 </head>
 
 <body>
-    <p>
-        <!-- Hit Alt to trigger Speech input<br>
-        Hit Ctl to trigger Keyboard input<br>
-        Hit S and start speaking -->
-    </p>
-    <div id="webchat-container">
-        <script src="https://github.com/Cognigy/WebchatWidget/releases/latest/download/webchat.js"></script>
-        <script>
-            initWebchat(
-                 "https://cognigy-v4-ep.scorobo.ai/58447273c53ad680e554c0bcf32281cd663adb7634f07e3e06037192fcbb27a5"
-            ).then(webchat => {
-                window.webchat = webchat;
-                window.webchat.open();
-            });
-        </script>
-    </div>
+    <!-- 例: 任意の要素クリックによるWebchatの起動 -->
+    <a href="#" id="open-webchat">来店予約</a>
+    <a href="cemetery.html" id="cemetery">霊園</a>
 
+    <script>
+        const webchatConfigUrl = 'https://cognigy-v4-ep.scorobo.ai/4fa4f50085997192a4fb0aa59355b4f64b663d297db0c5b72ffd4b2a56eeca6a';
+        const webchatPluginScriptUrls = [
+            'store-selection-plugin.js',
+            'scheduling-plugin.js',
+            'hasegawa-form-plugin.js'
+        ];
+
+        const webchatWidgetScriptUrl = 'https://github.com/Cognigy/WebchatWidget/releases/download/v2.38.1/webchat.js';
+
+        const body = document.querySelector('body');
+        let webchatLoaded = false;
+
+        // const scriptUrls = [webchatWidgetScriptUrl, ...webchatPluginScriptUrls];
+
+        const webchatWidgetScript = document.createElement('script');
+        webchatWidgetScript.type = 'text/javascript';
+        webchatWidgetScript.defer = true;
+        webchatWidgetScript.src = webchatWidgetScriptUrl;
+        webchatWidgetScript.onload = () => {
+            console.log('webchat widget script callback');
+            loadPluginScripts();
+
+        };
+        body.appendChild(webchatWidgetScript);
+
+        const loadPluginScripts = () => {
+            const loaded = webchatPluginScriptUrls.map(() => false);
+            const scripts = webchatPluginScriptUrls.map((url, i) => {
+                const script = document.createElement('script');
+                script.type = 'text/javascript';
+                script.defer = true;
+                script.src = url;
+                script.onload = () => {
+                    loaded[i] = true;
+                    if (loaded.every(b => b)) {
+                        setupWebchat();
+                        webchatLoaded = true;
+                    }
+                };
+                body.appendChild(script);
+                return script;
+            });
+        };
+
+        const setupWebchat = () => {
+            // Webchatを初期化
+            initWebchat(webchatConfigUrl, {
+                settings: {
+                    getStartedText: '',
+                    getStartedPayload: `URL: ${window.location.href}`,
+                    startBehavior: 'injection',
+                    disablePersistentHistory: true,
+                    disableBranding: true
+                }
+            }).then(webchat => {
+                window.webchat = webchat;
+                const params = new URLSearchParams(window.location.href.split('?')[1]);
+
+                // ボタンメニュー（「一つ前に戻る」「トップに戻る」）の表示
+                let shouldMenuBeDisplayed = true;
+                // let isMenuDisplayed = false;
+                const outerInterval = setInterval(() => {
+                    const inputElement = document.querySelector('[data-cognigy-webchat-root] [data-cognigy-webchat].webchat .webchat-input');
+                    const persistentMenuElement = document.querySelector('[data-cognigy-webchat-root] [data-cognigy-webchat].webchat .persistent-menu.custom-persistent-menu');
+                    if (!inputElement) {
+                        // if (isMenuDisplayed) isMenuDisplayed = false;
+                        return;
+                    }
+
+                    if (!persistentMenuElement) {
+                        if (!shouldMenuBeDisplayed) return;
+                        const divElement = document.createElement('div');
+                        divElement.classList.add('persistent-menu');
+                        divElement.classList.add('custom-persistent-menu');
+
+                        ['一つ前に戻る', 'トップに戻る'].forEach(text => {
+                            const menuButton = document.createElement('button');
+                            menuButton.textContent = text;
+                            menuButton.onclick = () => window.webchat.sendMessage(text);
+                            divElement.appendChild(menuButton);
+                        });
+
+                        inputElement.prepend(divElement);
+                        isMenuDisplayed = true;
+                    } else {
+                        if (shouldMenuBeDisplayed) return;
+                        persistentMenuElement.remove();
+                    }
+                }, 500);
+
+                // フローによるWebchat Widgetの制御
+                window.webchat.on('output', ({ text, data }) => {
+                    if (!data || !data.action) return;
+                    if (data.action === 'displayPersistentMenu') shouldMenuBeDisplayed = true;
+                    else if (data.action === 'hidePersistentMenu') shouldMenuBeDisplayed = false;
+                    else {
+                        const inputForm = document.querySelector('[data-cognigy-webchat-root] [data-cognigy-webchat].webchat .webchat-input-menu-form');
+                        if (data.action === 'showInput') {
+                            inputForm.style.display = 'flex';
+                        } else if (data.action === 'hideInput') {
+                            inputForm.style.display = '';
+                        }
+                    }
+                });
+
+                // チャットボット非表示ボタンの表示
+                let webchatToggleButtonDisplayed = false;
+                const hideButtonInterval = setInterval(() => {
+                    const webchatToggleButtonElement = document.querySelector('[data-cognigy-webchat-root] [data-cognigy-webchat-toggle].webchat-toggle-button');
+                    const webchatRootElement = document.querySelector('[data-cognigy-webchat-root].webchat-root');
+                    if (!webchatRootElement || !webchatToggleButtonElement) return;
+                    const hideButton = document.createElement('button');
+                    hideButton.classList.add('cognigy-webchat-hide-button');
+                    // hideButton.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="#666666"></path><path d="M0 0h24v24H0z" fill="none"></path></svg>';
+
+                    hideButton.onclick = e => {
+                        e.stopPropagation();
+                        webchatToggleButtonElement.style.display = 'none';
+                        hideButton.style.display = 'none';
+                        window.webchat.close();
+                    };
+                    webchatRootElement.appendChild(hideButton);
+                    clearInterval(hideButtonInterval);
+                }, 100);
+
+                // リセットボタンの表示
+                // let isResetButtonDisplayed = false;
+                // const resetButtonInterval = setInterval(() => {
+                //     const webchatHeaderBar = document.querySelector('[data-cognigy-webchat-root] .webchat-header-bar');
+                //     const closeButtonlement = document.querySelector('[data-cognigy-webchat-root] .webchat-header-close-button');
+                //     if (!webchatHeaderBar || !closeButtonlement) {
+                //         isResetButtonDisplayed = false;
+                //         return;
+                //     }
+                //     if (isResetButtonDisplayed) return;
+                //     const resetButton = document.createElement('button');
+                //     resetButton.classList.add('reset-button');
+                //     resetButton.textContent = 'リセット';
+                //     resetButton.onclick = e => {
+                //         window.webchat.sendMessage('トップに戻る');
+                //     };
+                //     webchatHeaderBar.insertBefore(resetButton, closeButtonlement);
+                //     isResetButtonDisplayed = true;
+                // }, 500);
+
+                // パラメーターによる自動起動制御
+                if (['true', '1'].includes(params.get('openCognigyWebchat'))) {
+                    setTimeout(window.webchat.open, 500);
+                }
+
+                // 来店予約取消
+                const calendarId = params.get('calendarId');
+                const eventId = params.get('eventId');
+                if (eventId) {
+                    window.webchat.open();
+                    window.webchat.sendMessage(null, { ...(calendarId ? { calendarId } : {}), eventId });
+                }
+
+                // 例: 任意の要素クリックによるWebchatの起動
+                // リンクからのWebchat起動
+                document.querySelector('#open-webchat').addEventListener('click', () => window.webchat.open());
+                // 霊園Webchat起動
+                document.querySelector('#cemetery').addEventListener('click', event => {
+                    event.preventDefault();
+                    window.open('cemetery.html', '', 'width=480,height=640,popup=1,resizable=0,menubar=0');
+                    // window.open('cemetery.html', '', 'width=480,height=640');
+                });
+            });
+        };
+    </script>
 </body>
 
 </html>
