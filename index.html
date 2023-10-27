@@ -2,7 +2,7 @@
     <meta name="viewport" content="width=device-width">
     <style type="text/css">
         p {
-            color: red; /* 例: デスクトップ用のスタイルをここで指定 */
+            color: red;
         }
         [data-cognigy-webchat-root] {
             position: relative;
@@ -68,6 +68,9 @@
         }
 
         @media screen and (min-width: 576px) and (max-height: 684px) {
+            p {
+                color: green;
+            }
             [data-cognigy-webchat-root] [data-cognigy-webchat] {
                 height: calc(100% - 104px);
             }
